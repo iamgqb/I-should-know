@@ -46,6 +46,10 @@ Object.getPrototypeOf(Object.getPrototypeOf(A)) === B.prototype ?
 
 ```
 
+*注意点*： 不同环境中的原型并不相同，比如两个 iframe 中，在 iframeA 的环境中去判断 iframeB 中的值。
+
+比如在 iframeA 中做这样的操作 `an array in iframeB instanceof Array in iframeA`，虽然的确是数组，但依旧返回 `false`
+
 `Object.getPrototypeOf` 方法用来获取指定对象的 prototype
 
 
