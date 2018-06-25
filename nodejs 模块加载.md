@@ -3,8 +3,8 @@
 require('http') //#1
 require('./script') //#2
 require('./script.js') //#3
-require('./script.node') //#4
-require('./script.json') //#5
+require('./script.json') //#4
+require('./script.node') //#5
 require('script') //#6
 ```
 
@@ -16,7 +16,7 @@ require('script') //#6
   
     3. 是不是路径开头 / ../ ./
   
-    3.1 如果带 .js .node .json 后缀，按路径加载 #345
+    3.1 如果带 .js .json .node 后缀，按路径加载 #345
     
     3.2 如果不带 #2
     
@@ -28,7 +28,7 @@ require('script') //#6
       
         3.2.3.1 进这个目录 尝试获取 ./script/package.json 中的 main 字段
         
-        3.2.3.2 尝试 ./script/index.json ./script/index.js ./script/index.node
+        3.2.3.2 尝试 ./script/index.js ./script/index.json ./script/index.node
         
     4. 当前目录 node_modules 中找，寻找方式类似 3.2.3 的目录；找不到就往父目录的 node_modules 找
   
