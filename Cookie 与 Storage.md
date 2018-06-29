@@ -32,4 +32,18 @@ http://www.cnblogs.com/ziyunfei/p/5637945.html
 https://www.sjoerdlangkemper.nl/2016/04/14/preventing-csrf-with-samesite-cookie-attribute/
 
 #### Storage
-...先睡觉
+
+https://developer.mozilla.org/en-US/docs/Web/API/Storage
+
+分为 localStorage 与 sessionStorage 
+
+Storage 遵循同源策略
+
+sessionStorage 的设置在当前会话有效：
+
+    1、在 A 页面设置 sessionStorage
+    2、点击 A 页面上的链接 B
+    3、如果 B 页面与 A 页面同源，则在 B 页面上也可以获取到该 storage，即使此时 A 页面已经关闭。
+    4、但如果此时再关闭 B 页面，则该 storage 将被清楚。
+
+
