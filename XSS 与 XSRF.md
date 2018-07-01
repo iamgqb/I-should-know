@@ -29,7 +29,7 @@ https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet
 
 2. 那么网站若只接受 POST 请求修改数据，是否可以防御XSRF？
 
-并不行，攻击者依旧可以构造表单的方式，诱导受害者点击。但是GET的确不是一种安全的增删改数据的方式。
+并不行，攻击者依旧可以构造表单的方式，诱导受害者点击。
 
 3. 上https
 
