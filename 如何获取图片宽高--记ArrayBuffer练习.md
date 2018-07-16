@@ -12,7 +12,7 @@ imgEle.onload = function(e) {
 imgEle.src = 'https://cbu01.alicdn.com/cms/upload/2016/883/878/2878388_1073447813.png';
 document.body.appendChild(imgEle)
 ```
-http://jsfiddle.net/g4yjpx79/
+>> http://jsfiddle.net/g4yjpx79/
 
 #### 图片来自本地
 
@@ -29,7 +29,7 @@ imgEle.onload = function(e) {
 imgEle.src = URL.createObjectURL(File);
 document.body.appendChild(imgEle)
 ```
-http://jsfiddle.net/pjLk7xnu
+>> http://jsfiddle.net/pjLk7xnu
 
 #### 不借助 img 元素
 上面都是借助了浏览器的 img 元素来获取宽高，但如果我们不在浏览器环境中呢，比如在 nodejs 中
@@ -49,18 +49,53 @@ http://jsfiddle.net/pjLk7xnu
 
 一些常见的 (signature)[https://en.wikipedia.org/wiki/List_of_file_signatures]
 
-比如 PNG 的文件开头必定是 0x89 0x50 0x4E 0x47 0x0D 0x0A 0x1A 0x0A
+比如 PNG 的文件开头必定是 `0x89 0x50 0x4E 0x47 0x0D 0x0A 0x1A 0x0A`
 
 ###### PNG
 
-从PNG的规格文件来看，PNG这种文件结构相对简单，它由8字节的signature和一系列的`Chunk`构成。
+从PNG的规格文件来看，PNG这种文件结构相对简单，它由8字节的signature和一系列的`Chunk`构成。 https://www.w3.org/TR/PNG/#11Chunks
 
 `Chunk` 的结构也比较清晰，4字节的dataLength + 4字节的chunkType + 变长Data + 4字节的CRC 即构成一个 `Chunk`，如果length为0，则 Data 不存在。
 
 ![image](https://user-images.githubusercontent.com/2213424/42680863-c943ab82-86b8-11e8-9663-dafdba5bac13.png)
 
-而 PNG 的宽高信息则存储在 `IHDR Chunk` 中， `IHDR Chunk` 
+> A valid PNG datastream shall begin with a PNG signature, immediately followed by an IHDR chunk, then one or more IDAT chunks, and shall end with an IEND chunk. Only one IHDR chunk and one IEND chunk are allowed in a PNG datastream.
 
+而 PNG 的宽高信息则存储在 `IHDR Chunk` 中， `IHDR Chunk` 紧跟在signature后，因此我们可以非常方便地获得 `IDHR Chunk`：
+```javascript
+    const CHUNKLENGTHBYTES = 4; // chunk 数据长度为4字节
+    const TYPEBYTES = 4; // 4字节表示 chunk 类型
+    const CRCBYTES = 4; // 4字节 CRC校验
+    
+    const chunkDataLegth = new DataView(fileBuffer).getUint32(8); // 8 为8位signature偏移
+    
+    const IDHRChunkBuffer = fileBuffer.slice(8, 8 + CHUNKLENGTHBYTES + TYPEBYTES + chunkDataLegth + CRCBYTES); // 8 为8位signature偏移
+```
+
+根据 `IDHR Chunk` 的字节序，可以得知数据字节的前4位表示宽，紧接着4位表示高
+
+![image](https://user-images.githubusercontent.com/2213424/42755259-04586b18-892a-11e8-9efc-fefd1fc5fd05.png)
+
+因此也很容易获得 width 与 height
+
+```javascript
+    const dv = new DataView(IDHRChunkBuffer);
+    const width = dv.getUint32(4 + 4); // 4位length + 4位chunk type
+    const height = dv.getUnit32(4 + 4 + 4); // 4位length + 4位chunk type + 4位width
+```
+>> http://jsfiddle.net/uf8aby2n/
+
+
+###### JPEG
+
+JPEG 的格式比 PNG 复杂很多，首先它并没有像 PNG 那样清晰的 signature，虽然 wiki 上指出 JEPG 的 magic number 应为 `ff d8 ff`, 但实际上，根据 JPEG 但结构描述，JPEG 由一系列的片段构成，每个片段以一个 `marker` 开头，而 `marker` 以 0xFF 开头，紧接着一字节表示该 `marker` 的类型。根据 `marker` 类型的不同，后续的数据也不同，如果该 `marker` 包含数据，则接下去的两字节代表该片段所含数据的长度；如果不包含数据，则该片段结束。
+
+> A JPEG image consists of a sequence of segments, each beginning with a marker, each of which begins with a 0xFF byte followed by a byte indicating what kind of marker it is. Some markers consist of just those two bytes; others are followed by two bytes (high then low) indicating the length of marker-specific payload data that follows. (The length includes the two bytes for the length, but not the two bytes for the marker.)
+
+wiki 上所示的 marker 类型 
+![image](https://user-images.githubusercontent.com/2213424/42756605-76bdb50a-892f-11e8-9f71-081bd2c0d12a.png)
+
+https://en.wikipedia.org/wiki/JPEG#Syntax_and_structure
 
 
 
