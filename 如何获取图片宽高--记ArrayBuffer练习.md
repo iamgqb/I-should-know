@@ -144,6 +144,8 @@ https://stackoverflow.com/questions/18264357/how-to-get-the-width-height-of-jpeg
 
 #### 资料
 
+http://es6.ruanyifeng.com/#docs/arraybuffer
+
 https://en.wikipedia.org/wiki/Magic_number_(programming)
 
 https://en.wikipedia.org/wiki/List_of_file_signatures
