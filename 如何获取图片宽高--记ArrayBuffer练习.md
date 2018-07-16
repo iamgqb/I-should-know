@@ -34,9 +34,7 @@ document.body.appendChild(imgEle)
 #### 不借助 img 元素
 上面都是借助了浏览器的 img 元素来获取宽高，但如果我们不在浏览器环境中呢，比如在 nodejs 中
 
-*下面只是为了练习 ArrayBuffer 的操作，因此依旧在浏览器中，但原理是一样的*
-
-**所有的信息都可以从文件字节中读取得到(文件名，修改时间等除外)**
+***下面只是为了练习 ArrayBuffer 的操作，因此依旧在浏览器中，但原理是一样的***
 
 ##### 从图片文件结构中获取宽高
 
@@ -49,7 +47,7 @@ document.body.appendChild(imgEle)
 
 一些常见的 (signature)[https://en.wikipedia.org/wiki/List_of_file_signatures]
 
-比如 PNG 的文件开头必定是 `0x89 0x50 0x4E 0x47 0x0D 0x0A 0x1A 0x0A`
+比如 PNG 的文件开头必定是 `0x89 0x50 0x4E 0x47 0x0D 0x0A 0x1A 0x0A`，在解析PNG图片前，可以先校验这个8位来确定接下来的格式的确是PNG的存储结构。
 
 ###### PNG
 
@@ -88,7 +86,7 @@ document.body.appendChild(imgEle)
 
 ###### JPEG
 
-JPEG 的格式比 PNG 复杂很多，首先它并没有像 PNG 那样清晰的 signature，虽然 wiki 上指出 JEPG 的 magic number 应为 `ff d8 ff`, 但实际上，根据 JPEG 但结构描述，JPEG 由一系列的片段构成，每个片段以一个 `marker` 开头，而 `marker` 以 0xFF 开头，紧接着一字节表示该 `marker` 的类型。根据 `marker` 类型的不同，后续的数据也不同，如果该 `marker` 包含数据，则接下去的两字节代表该片段所含数据的长度；如果不包含数据，则该片段结束。
+JPEG 的格式比 PNG 复杂很多，首先它并没有像 PNG 那样清晰的 signature，虽然 wiki 上指出 JEPG 的 magic number 应为 `ff d8 ff`, 但实际上，根据 JPEG 但结构描述，JPEG 由一系列的片段构成，每个片段以一个 `marker` 开头，而 `marker` 以 0xFF 开头，紧接着一字节表示该 `marker` 的类型。根据 `marker` 类型的不同，后续的数据也不同，如果该 `marker` 包含数据，则接下去的两字节代表该片段所含数据的长度；如果不包含数据，则该片段结束。所以在读取每一个片段时都需判断它是否以 0xFF 开头，是否该文件的确是以JPEG结构存储的。
 
 > A JPEG image consists of a sequence of segments, each beginning with a marker, each of which begins with a 0xFF byte followed by a byte indicating what kind of marker it is. Some markers consist of just those two bytes; others are followed by two bytes (high then low) indicating the length of marker-specific payload data that follows. (The length includes the two bytes for the length, but not the two bytes for the marker.)
 
@@ -97,7 +95,7 @@ wiki 上所示的 marker 类型
 
 > https://en.wikipedia.org/wiki/JPEG#Syntax_and_structure
 
-从上表中可知，我们要查询的是 `SOF0` 与 `SOF2` 两个类型的 `marker`。同时我们在搜索这两个 `mraker` 时，要注意有些 `marker` 是不包含数据的，跳过的时候要注意长度计算。
+从上表中可知，我们要查询的宽高包含在 `SOF0` 与 `SOF2` 两个类型的 `marker` 中。同时我们在搜索这两个 `mraker` 时，要注意有些 `marker` 是不包含数据的，跳过的时候要注意长度计算。
 
 ```javascript
     const dv = new DataView(fileBuffer);
@@ -142,7 +140,7 @@ https://stackoverflow.com/questions/18264357/how-to-get-the-width-height-of-jpeg
 
 
 ##### 最后
-虽然浏览器提供了 TypedArray 的视图类型，但是在实际操作一些流的时候，感觉还是 DataView 的视图来得更方便。毕竟对于大多数文件结构来讲，各种长度类型的数据都可能存在。
+虽然浏览器提供了 TypedArray 的视图类型，但是在实际操作一些流的时候，感觉还是 DataView 视图来得更方便。毕竟对于大多数文件结构来讲，各种长度类型的数据都可能存在。
 
 ##### 资料
 
