@@ -12,7 +12,7 @@ imgEle.onload = function(e) {
 imgEle.src = 'https://cbu01.alicdn.com/cms/upload/2016/883/878/2878388_1073447813.png';
 document.body.appendChild(imgEle)
 ```
->> http://jsfiddle.net/g4yjpx79/
+> http://jsfiddle.net/g4yjpx79/
 
 #### 图片来自本地
 
@@ -29,7 +29,7 @@ imgEle.onload = function(e) {
 imgEle.src = URL.createObjectURL(File);
 document.body.appendChild(imgEle)
 ```
->> http://jsfiddle.net/pjLk7xnu
+> http://jsfiddle.net/pjLk7xnu
 
 #### 不借助 img 元素
 上面都是借助了浏览器的 img 元素来获取宽高，但如果我们不在浏览器环境中呢，比如在 nodejs 中
@@ -83,7 +83,7 @@ document.body.appendChild(imgEle)
     const width = dv.getUint32(4 + 4); // 4位length + 4位chunk type
     const height = dv.getUnit32(4 + 4 + 4); // 4位length + 4位chunk type + 4位width
 ```
->> http://jsfiddle.net/uf8aby2n/
+> http://jsfiddle.net/uf8aby2n/
 
 
 ###### JPEG
@@ -95,14 +95,68 @@ JPEG 的格式比 PNG 复杂很多，首先它并没有像 PNG 那样清晰的 s
 wiki 上所示的 marker 类型 
 ![image](https://user-images.githubusercontent.com/2213424/42756605-76bdb50a-892f-11e8-9f71-081bd2c0d12a.png)
 
-https://en.wikipedia.org/wiki/JPEG#Syntax_and_structure
+> https://en.wikipedia.org/wiki/JPEG#Syntax_and_structure
+
+从上表中可知，我们要查询的是 `SOF0` 与 `SOF2` 两个类型的 `marker`。同时我们在搜索这两个 `mraker` 时，要注意有些 `marker` 是不包含数据的，跳过的时候要注意长度计算。
+
+```javascript
+    const dv = new DataView(fileBuffer);
+    let offset = 2; // 跳过 SOI
+
+    while (offset < fileBuffer.byteLength) {
+
+        const m1 = dv.getUint8(offset);
+        if (m1 !== 0xFF) { // marker 一定以 0xFF 开头
+            throw 'this is not a JPEG image';
+        }
+        
+        const m2 = dv.getUint8(offset + 1);
+        if (m2 === 0xC2 || m2 === 0xC0) { // 目标 marker 的类型
+            return fileBuffer.slice(offset, dv.getUint16(offset + 2) + offset + 2);
+        } else {
+            if (208 <= m2 && m2 <= 215) { // RSTn 不包含数据，只需跳过 2 字节
+                offset += 2;
+            } else {
+                offset += dv.getUint16(offset + 2) + 2;
+            }
+        }
+    }
+    
+    throw 'can`t find sof0 or sof2'
+```
+
+获得了 `SOF0` 或者 `SOF2` 之后，一直没具体查到，这个两块内部的结构是怎么样的... 直到看到爆栈上的这个 C 的回答
+
+https://stackoverflow.com/questions/18264357/how-to-get-the-width-height-of-jpeg-file-without-using-library
+
+![image](https://user-images.githubusercontent.com/2213424/42757314-248be650-8932-11e8-8242-6a52b76162f7.png)
+
+数据偏移量为3，只有两字节来表示宽高
+
+```javascript
+    const width = new DataView(sof02Buffer).getUint16(7);
+    const height = new DataView(sof02Buffer).getUint16(5);
+```
+
+> http://jsfiddle.net/n48retxv/
 
 
+##### 最后
+虽然浏览器提供了 TypedArray 的视图类型，但是在实际操作一些流的时候，感觉还是 DataView 的视图来得更方便。毕竟对于大多数文件结构来讲，各种长度类型的数据都可能存在。
 
+##### 资料
 
+https://en.wikipedia.org/wiki/Magic_number_(programming)
 
+https://en.wikipedia.org/wiki/List_of_file_signatures
 
+https://en.wikipedia.org/wiki/Portable_Network_Graphics
 
+https://www.w3.org/TR/PNG/
+
+https://en.wikipedia.org/wiki/JPEG
+
+https://stackoverflow.com/questions/18264357/how-to-get-the-width-height-of-jpeg-file-without-using-library
 
 
 
