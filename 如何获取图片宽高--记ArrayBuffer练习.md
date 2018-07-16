@@ -44,10 +44,30 @@ http://jsfiddle.net/pjLk7xnu
 
 同时，由于文件名并不包含在文件结构中，所以一个叫 test.png 的图片它可能是 jpeg 格式的图片。因此在分析一个图片前还要确定它是否属于某个格式。
 
-
 ###### Magic Number
+或叫 file signature，它是一段用来表示该二进制文件是何种结构的标记
+
+一些常见的 (signature)[https://en.wikipedia.org/wiki/List_of_file_signatures]
+
+比如 PNG 的文件开头必定是 0x89 0x50 0x4E 0x47 0x0D 0x0A 0x1A 0x0A
 
 ###### PNG
+
+从PNG的规格文件来看，PNG这种文件结构相对简单，它由8字节的signature和一系列的`Chunk`构成。
+
+`Chunk` 的结构也比较清晰，4字节的dataLength + 4字节的chunkType + 变长Data + 4字节的CRC 即构成一个 `Chunk`，如果length为0，则 Data 不存在。
+
+![image](https://user-images.githubusercontent.com/2213424/42680863-c943ab82-86b8-11e8-9663-dafdba5bac13.png)
+
+而 PNG 的宽高信息则存储在 `IHDR Chunk` 中， `IHDR Chunk` 
+
+
+
+
+
+
+
+
 
 
 
