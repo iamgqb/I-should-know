@@ -139,10 +139,10 @@ https://stackoverflow.com/questions/18264357/how-to-get-the-width-height-of-jpeg
 > http://jsfiddle.net/n48retxv/
 
 
-##### 最后
+#### 最后
 虽然浏览器提供了 TypedArray 的视图类型，但是在实际操作一些流的时候，感觉还是 DataView 视图来得更方便。毕竟对于大多数文件结构来讲，各种长度类型的数据都可能存在。
 
-##### 资料
+#### 资料
 
 https://en.wikipedia.org/wiki/Magic_number_(programming)
 
