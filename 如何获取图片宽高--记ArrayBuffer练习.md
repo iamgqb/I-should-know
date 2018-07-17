@@ -86,7 +86,7 @@ document.body.appendChild(imgEle)
 
 ###### JPEG
 
-JPEG 的格式比 PNG 复杂很多，首先它并没有像 PNG 那样清晰的 signature，虽然 wiki 上指出 JEPG 的 magic number 应为 `ff d8 ff`, 但实际上，根据 JPEG 但结构描述，JPEG 由一系列的片段构成，每个片段以一个 `marker` 开头，而 `marker` 以 0xFF 开头，紧接着一字节表示该 `marker` 的类型。根据 `marker` 类型的不同，后续的数据也不同，如果该 `marker` 包含数据，则接下去的两字节代表该片段所含数据的长度；如果不包含数据，则该片段结束。所以在读取每一个片段时都需判断它是否以 0xFF 开头，是否该文件的确是以JPEG结构存储的。
+JPEG 的格式比 PNG 复杂很多，首先它并没有像 PNG 那样清晰的 signature，虽然 wiki 上指出 JEPG 的 magic number 应为 `ff d8 ff`, 但实际上，根据 JPEG 的结构描述，JPEG 由一系列的片段构成，每个片段以一个 `marker` 开头，而 `marker` 以 0xFF 开头，紧接着一字节表示该 `marker` 的类型。根据 `marker` 类型的不同，后续的数据也不同，如果该 `marker` 包含数据，则接下去的两字节代表该片段所含数据的长度；如果不包含数据，则该片段结束。所以在读取每一个片段时都需判断它是否以 0xFF 开头，是否该文件的确是以JPEG结构存储的。
 
 > A JPEG image consists of a sequence of segments, each beginning with a marker, each of which begins with a 0xFF byte followed by a byte indicating what kind of marker it is. Some markers consist of just those two bytes; others are followed by two bytes (high then low) indicating the length of marker-specific payload data that follows. (The length includes the two bytes for the length, but not the two bytes for the marker.)
 
